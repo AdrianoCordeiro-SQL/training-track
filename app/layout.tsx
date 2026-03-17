@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 // Importe o componente
 import { RestTimer } from "@/components/RestTimer";
+import { Header } from "@/components/Header";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="pt">
       <body className={`${inter.className} bg-zinc-950 text-zinc-50`}>
+        <Header />
         {children}
 
         {/* Adicionamos o cronómetro aqui, fora do fluxo das páginas */}
