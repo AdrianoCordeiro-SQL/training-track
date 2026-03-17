@@ -1,11 +1,12 @@
+"use client"; // Adicionado porque agora precisamos de ler o estado local
+
 import Link from "next/link";
-import { mockWorkout } from "@/utils/mockData";
 import { WorkoutCard } from "@/components/WorkoutCard";
+import { useWorkoutStore } from "@/store/useWorkoutStore";
 
 export default function Dashboard() {
-  // Num cenário real, buscaríamos um array de treinos da base de dados aqui:
-  // const workouts = await getWorkouts();
-  const workouts = [mockWorkout]; // Por agora simulamos um array com 1 treino
+  // Agora puxamos a lista real e reativa de treinos!
+  const { workouts } = useWorkoutStore();
 
   return (
     <main className="w-full px-4 md:px-8 py-4 md:py-8">
@@ -18,7 +19,6 @@ export default function Dashboard() {
 
       <section>
         <h2 className="text-xl font-semibold text-zinc-100 mb-4 flex items-center gap-2">
-          {/* Ícone de lista/clipboard */}
           <svg
             className="w-5 h-5 text-emerald-500"
             fill="none"
@@ -36,12 +36,18 @@ export default function Dashboard() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Mapeia e renderiza a lista de treinos usando o nosso novo componente */}
-          {workouts.map((workout) => (
-            <WorkoutCard key={workout.id} workout={workout} />
-          ))}
+          {/* Se não houver treinos, mostramos uma mensagem simpática */}
+          {workouts.length === 0 ? (
+            <div className="col-span-full py-8 text-center text-zinc-500 bg-zinc-900/30 rounded-2xl border border-zinc-800 border-dashed">
+              Ainda não tem treinos criados. Comece por criar um novo!
+            </div>
+          ) : (
+            // Caso contrário, listamos os treinos
+            workouts.map((workout) => (
+              <WorkoutCard key={workout.id} workout={workout} />
+            ))
+          )}
 
-          {/* Botão de Adicionar Mais Treinos */}
           <Link href="/create-workout">
             <div className="h-full min-h-35 border-2 border-dashed border-zinc-800 rounded-2xl flex flex-col items-center justify-center text-zinc-500 hover:text-emerald-500 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all cursor-pointer">
               <svg
