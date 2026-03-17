@@ -56,8 +56,6 @@ export default function Home() {
                 ⏱ {exercise.restTime}s
               </span>
             </div>
-
-            {/* Onde os inputs de peso e repetição vão entrar */}
             <ExerciseCard exercise={exercise} />
           </div>
         ))}
