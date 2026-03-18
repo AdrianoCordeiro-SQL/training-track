@@ -4,6 +4,7 @@ import "./globals.css";
 // Importe o componente
 import { RestTimer } from "@/components/RestTimer";
 import { Header } from "@/components/Header";
+import { Sidebar } from "@/components/Sidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,11 +21,13 @@ export default function RootLayout({
   return (
     <html lang="pt">
       <body className={`${inter.className} bg-zinc-950 text-zinc-50`}>
-        <Header />
-        {children}
+        <Sidebar />
 
-        {/* Adicionamos o cronómetro aqui, fora do fluxo das páginas */}
-        <RestTimer />
+        <div className="flex-1 pl-0 md:pl-16 w-full relative">
+          <Header />
+          {children}
+          <RestTimer />
+        </div>
       </body>
     </html>
   );
