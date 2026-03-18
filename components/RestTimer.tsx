@@ -1,5 +1,5 @@
 "use client";
-
+import { usePathname } from "next/navigation";
 import { useWorkoutStore } from "@/store/useWorkoutStore";
 import { useTimer } from "@/hooks/useTimer";
 
@@ -8,6 +8,10 @@ export function RestTimer() {
   useTimer();
 
   const { isResting, restTimeRemaining, toggleRestTimer } = useWorkoutStore();
+
+  const pathname = usePathname();
+
+  if (pathname === "/login" || pathname === "/register") return null;
 
   // Se não estiver em período de descanso, o componente não é renderizado
   if (!isResting || restTimeRemaining <= 0) return null;

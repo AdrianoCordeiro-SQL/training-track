@@ -1,7 +1,13 @@
+"use client";
 // import Link from "next/link";
 import { HomeButton } from "./HomeButton";
+import { usePathname } from "next/navigation";
 
 export function Header() {
+  const pathname = usePathname();
+
+  if (pathname === "/login" || pathname === "/register") return null;
+
   return (
     <header className="sticky top-0 z-40 w-full bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800">
       {/* Removemos o max-w-5xl para que ocupe toda a largura e alinhe com o main */}
