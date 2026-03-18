@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react"; // Adicionado useRef
 import { useForm } from "react-hook-form";
 import { supabase } from "@/utils/supabase";
 
@@ -10,6 +10,7 @@ interface UserMetadata {
   last_name?: string;
   phone?: string;
   address?: string;
+  avatar_url?: string; // Adicionado avatar_url
 }
 
 interface ContactFormInputs {
@@ -25,16 +26,23 @@ interface PasswordFormInputs {
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
+  const [userId, setUserId] = useState(""); // Precisamos do ID para o nome do arquivo
   const [metadata, setMetadata] = useState<UserMetadata>({});
   const [initials, setInitials] = useState("U");
 
+  // Estados para controlar os modos de edição e feedback
   const [isEditingContact, setIsEditingContact] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false); // Estado de load do upload
   const [statusMessage, setStatusMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
 
+  // Referência para o input de arquivo escondido
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Formulários
   const contactForm = useForm<ContactFormInputs>();
   const passwordForm = useForm<PasswordFormInputs>();
 
@@ -45,11 +53,11 @@ export default function ProfilePage() {
       } = await supabase.auth.getUser();
 
       if (user) {
+        setUserId(user.id);
         setEmail(user.email || "");
         const userMeta = user.user_metadata as UserMetadata;
         setMetadata(userMeta || {});
 
-        // Preenche o formulário de contato com os dados atuais
         contactForm.reset({
           phone: userMeta?.phone || "",
           address: userMeta?.address || "",
@@ -69,18 +77,91 @@ export default function ProfilePage() {
     getUserData();
   }, [contactForm]);
 
-  // Função para atualizar Contato
+  // --- LÓGICA DE UPLOAD DE FOTO ---
+
+  // 1. Função que aciona o clique no input escondido
+  const handleAvatarClick = () => {
+    if (!isEditingContact && !isEditingPassword) {
+      // Só permite mudar foto se não estiver editando outra coisa
+      fileInputRef.current?.click();
+    }
+  };
+
+  // 2. Função que processa o arquivo selecionado
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    try {
+      setUploadingAvatar(true);
+      setStatusMessage(null);
+
+      if (!event.target.files || event.target.files.length === 0) {
+        throw new Error("Você precisa selecionar uma imagem.");
+      }
+
+      const file = event.target.files[0];
+      const fileExt = file.name.split(".").pop();
+      // Criamos um nome único usando o ID do usuário e o timestamp para evitar cache do navegador
+      const fileName = `${userId}/avatar_${Date.now()}.${fileExt}`;
+      const filePath = fileName;
+
+      // Restrições simples de arquivo (TCC/Portfolio Check)
+      if (file.size > 2 * 1024 * 1024) {
+        // 2MB
+        throw new Error("A imagem deve ter no máximo 2MB.");
+      }
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        throw new Error("Apenas arquivos JPG, PNG ou WebP são permitidos.");
+      }
+
+      // 2a. Faz o Upload para o Storage do Supabase (Bucket 'avatars')
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, {
+          upsert: true, // Se já existir um arquivo nesse caminho exato, substitui
+        });
+
+      if (uploadError) throw uploadError;
+
+      // 2b. Pega a URL Pública da imagem que acabamos de subir
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("avatars").getPublicUrl(filePath);
+
+      // 2c. Atualiza os metadados do usuário na tabela de Autenticação com a nova URL
+      const { data: updateData, error: updateError } =
+        await supabase.auth.updateUser({
+          data: { avatar_url: publicUrl },
+        });
+
+      if (updateError) throw updateError;
+
+      // 2d. Atualiza o estado local para exibir a foto imediatamente
+      setMetadata(updateData.user.user_metadata as UserMetadata);
+      setStatusMessage({ type: "success", text: "Foto de perfil atualizada!" });
+    } catch (error) {
+      // Verificamos se o que foi capturado é instanciado como um Error real
+      const errorMessage =
+        error instanceof Error ? error.message : "Erro ao subir imagem.";
+
+      setStatusMessage({
+        type: "error",
+        text: errorMessage,
+      });
+    } finally {
+      setUploadingAvatar(false);
+      // Limpa o input para permitir selecionar a mesma imagem novamente se necessário
+      if (event.target) event.target.value = "";
+    }
+  };
+
+  // --- LÓGICA DE ATUALIZAÇÃO DE DADOS (CONTATO E SENHA - MANTIDA) ---
+
   const onSubmitContact = async (data: ContactFormInputs) => {
     setStatusMessage(null);
-
-    // Atualiza os metadados no Supabase
     const { data: updateData, error } = await supabase.auth.updateUser({
-      data: {
-        phone: data.phone,
-        address: data.address,
-      },
+      data: { phone: data.phone, address: data.address },
     });
-
     if (error) {
       setStatusMessage({
         type: "error",
@@ -88,29 +169,21 @@ export default function ProfilePage() {
       });
       return;
     }
-
-    // Atualiza o estado local para refletir a mudança instantaneamente
     setMetadata(updateData.user.user_metadata as UserMetadata);
     setIsEditingContact(false);
     setStatusMessage({
       type: "success",
       text: "Informações de contato atualizadas!",
     });
-
-    // Limpa a mensagem de sucesso após 3 segundos
     setTimeout(() => setStatusMessage(null), 3000);
   };
 
-  // Função para atualizar Senha
   const onSubmitPassword = async (data: PasswordFormInputs) => {
     setStatusMessage(null);
-
-    // 1. Verificamos se a senha atual está correta tentando fazer login com ela
     const { error: verifyError } = await supabase.auth.signInWithPassword({
-      email: email, // Usamos o email que já está salvo no state da página
+      email: email,
       password: data.oldPassword,
     });
-
     if (verifyError) {
       setStatusMessage({
         type: "error",
@@ -118,12 +191,9 @@ export default function ProfilePage() {
       });
       return;
     }
-
-    // 2. Se a senha atual estiver certa, atualizamos para a nova senha
     const { error: updateError } = await supabase.auth.updateUser({
       password: data.newPassword,
     });
-
     if (updateError) {
       setStatusMessage({
         type: "error",
@@ -131,11 +201,9 @@ export default function ProfilePage() {
       });
       return;
     }
-
     setIsEditingPassword(false);
-    passwordForm.reset(); // Limpa os campos
+    passwordForm.reset();
     setStatusMessage({ type: "success", text: "Senha alterada com sucesso!" });
-
     setTimeout(() => setStatusMessage(null), 3000);
   };
 
@@ -149,7 +217,15 @@ export default function ProfilePage() {
 
   return (
     <main className="w-full p-4 md:p-8 relative">
-      {/* Toast de Feedback (Mensagens de sucesso ou erro flutuantes no topo) */}
+      {/* Input de arquivo ESCONDIDO */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+      />
+
       {statusMessage && (
         <div
           className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full text-sm font-medium shadow-xl transition-all animate-in slide-in-from-top-4 ${
@@ -163,9 +239,64 @@ export default function ProfilePage() {
       )}
 
       <header className="mb-10 mt-4 flex items-center gap-6">
-        <div className="w-24 h-24 rounded-full bg-emerald-600 flex items-center justify-center text-4xl font-extrabold text-zinc-950 shadow-2xl shrink-0 border-4 border-zinc-800">
-          {initials}
+        {/* Avatar Grande - Agora Interativo */}
+        <div
+          onClick={handleAvatarClick}
+          className={`relative w-24 h-24 rounded-full flex items-center justify-center shadow-2xl shrink-0 border-4 border-zinc-800 transition-all ${
+            uploadingAvatar
+              ? "animate-pulse bg-zinc-700"
+              : isEditingContact || isEditingPassword
+                ? "cursor-not-allowed bg-zinc-800"
+                : "cursor-pointer hover:border-emerald-500 bg-emerald-600 group"
+          }`}
+        >
+          {uploadingAvatar ? (
+            // Loader simples
+            <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+          ) : metadata.avatar_url ? (
+            // Exibe a FOTO se ela existir
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={metadata.avatar_url}
+              alt="Avatar"
+              className="w-full h-full rounded-full object-cover"
+            />
+          ) : (
+            // Fallback para INICIAIS se não tiver foto
+            <span className="text-4xl font-extrabold text-zinc-950">
+              {initials}
+            </span>
+          )}
+
+          {/* Overlay de "Mudar Foto" no hover (só aparece se não estiver editando outra coisa) */}
+          {!uploadingAvatar && !isEditingContact && !isEditingPassword && (
+            <div className="absolute inset-0 bg-black/60 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-1">
+              <svg
+                className="w-6 h-6 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              <span className="text-[10px] text-white font-bold uppercase tracking-wider">
+                Mudar
+              </span>
+            </div>
+          )}
         </div>
+
         <div>
           <h1 className="text-4xl font-extrabold text-zinc-100 tracking-tighter">
             {metadata.first_name
@@ -178,8 +309,9 @@ export default function ProfilePage() {
         </div>
       </header>
 
+      {/* Grid de Informações (Mantido) */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-24">
-        {/* CARD: DADOS DA CONTA (SENHA E EMAIL) */}
+        {/* CARD: DADOS DA CONTA */}
         <div className="bg-zinc-900/50 p-6 rounded-3xl border border-zinc-800 space-y-5 flex flex-col justify-start">
           <div className="flex items-center gap-3 mb-2">
             <svg
@@ -199,7 +331,6 @@ export default function ProfilePage() {
               Dados da Conta
             </h2>
           </div>
-
           <div className="space-y-1">
             <label className="text-sm font-medium text-zinc-500">
               Endereço de E-mail
@@ -208,7 +339,6 @@ export default function ProfilePage() {
               {email}
             </p>
           </div>
-
           <div className="space-y-1">
             <div className="flex justify-between items-center">
               <label className="text-sm font-medium text-zinc-500">Senha</label>
@@ -221,13 +351,11 @@ export default function ProfilePage() {
                 </button>
               )}
             </div>
-
             {isEditingPassword ? (
               <form
                 onSubmit={passwordForm.handleSubmit(onSubmitPassword)}
                 className="space-y-4 mt-2 animate-in fade-in slide-in-from-top-2"
               >
-                {/* Input da Senha Antiga */}
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1">
                     Senha Atual
@@ -246,8 +374,6 @@ export default function ProfilePage() {
                     </span>
                   )}
                 </div>
-
-                {/* Input da Nova Senha */}
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1">
                     Nova Senha
@@ -276,7 +402,6 @@ export default function ProfilePage() {
                     </span>
                   )}
                 </div>
-
                 <div className="flex gap-2 pt-2">
                   <button
                     type="button"
@@ -334,7 +459,6 @@ export default function ProfilePage() {
               </button>
             )}
           </div>
-
           {isEditingContact ? (
             <form
               onSubmit={contactForm.handleSubmit(onSubmitContact)}
@@ -357,7 +481,6 @@ export default function ProfilePage() {
                   </span>
                 )}
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-zinc-500 mb-1">
                   Endereço
@@ -375,7 +498,6 @@ export default function ProfilePage() {
                   </span>
                 )}
               </div>
-
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"

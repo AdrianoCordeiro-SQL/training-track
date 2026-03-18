@@ -10,6 +10,7 @@ export function Sidebar() {
   const router = useRouter();
   const [userName, setUserName] = useState("Usuário");
   const [userInitials, setUserInitials] = useState("U");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   // Busca os dados do Supabase ao montar a sidebar
   useEffect(() => {
@@ -21,6 +22,7 @@ export function Sidebar() {
         // Pega os metadados que salvamos no cadastro
         const firstName = user.user_metadata?.first_name || "";
         const lastName = user.user_metadata?.last_name || "";
+        const avatar = user.user_metadata?.avatar_url || null;
 
         if (firstName) {
           setUserName(`${firstName} ${lastName}`);
@@ -31,6 +33,7 @@ export function Sidebar() {
           setUserName(user.email.split("@")[0]);
           setUserInitials(user.email.charAt(0).toUpperCase());
         }
+        setAvatarUrl(avatar);
       }
     };
     getUser();
@@ -48,8 +51,19 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 h-screen bg-zinc-950/95 backdrop-blur-md border-r border-zinc-800 transition-all duration-300 w-16 hover:w-64 z-50 group flex flex-col overflow-hidden shadow-2xl">
       {/* Topo: Foto do Usuário (Iniciais por enquanto) */}
       <div className="p-4 flex items-center gap-4 border-b border-zinc-800/50 mt-2">
-        <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-sm font-bold text-zinc-950 shrink-0 shadow-inner">
-          {userInitials}
+        <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-sm font-bold text-zinc-950 shrink-0 shadow-inner overflow-hidden">
+          {avatarUrl ? (
+            // Se tiver foto, renderiza a imagem
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={avatarUrl}
+              alt="Avatar do Usuário"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            // Se não tiver, mostra as iniciais como fallback
+            userInitials
+          )}
         </div>
         <div className="flex flex-col whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <span className="text-sm font-semibold text-zinc-100 truncate w-40">
