@@ -43,7 +43,7 @@ export default function CreateWorkoutPage() {
 
   const onSubmit = (data: Workout) => {
     // Usando a nova função aqui também
-    const newWorkout = { ...data, id: `treino-${generateId()}` };
+    const newWorkout = { ...data, id: crypto.randomUUID() };
 
     addWorkout(newWorkout);
     router.push("/");

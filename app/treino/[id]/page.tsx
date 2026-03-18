@@ -3,26 +3,27 @@
 import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useWorkoutStore } from "@/store/useWorkoutStore";
-import { mockWorkout } from "@/utils/mockData";
+
 import { ExerciseCard } from "@/components/ExerciseCard";
 
 export default function TreinoPage() {
   const params = useParams();
-  const { activeWorkout, startWorkout } = useWorkoutStore();
+  const { activeWorkout, setActiveWorkout, workouts } = useWorkoutStore();
 
   useEffect(() => {
-    // Se não houver treino ativo OU se o ID do URL for diferente do treino ativo
     if (!activeWorkout || activeWorkout.id !== params.id) {
-      // Numa app real com base de dados, faríamos um fetch aqui.
-      // Por agora, carregamos o nosso mockWorkout
-      startWorkout(mockWorkout);
+      const treinoClicado = workouts.find((w) => w.id === params.id);
+
+      if (treinoClicado) {
+        setActiveWorkout(treinoClicado);
+      }
     }
-  }, [activeWorkout, startWorkout, params.id]);
+  }, [activeWorkout, params.id, workouts, setActiveWorkout]);
 
   if (!activeWorkout) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-zinc-400">
-        A carregar os pesos...
+        Carregando treino...
       </div>
     );
   }

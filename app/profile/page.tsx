@@ -304,7 +304,7 @@ export default function ProfilePage() {
               : "Meu Perfil"}
           </h1>
           <p className="text-zinc-400 mt-1.5 text-lg">
-            Gira as tuas informações e credenciais.
+            Suas informações e credenciais.
           </p>
         </div>
       </header>

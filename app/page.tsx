@@ -1,15 +1,23 @@
-"use client"; // Adicionado porque agora precisamos de ler o estado local
+"use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { WorkoutCard } from "@/components/WorkoutCard";
 import { useWorkoutStore } from "@/store/useWorkoutStore";
 
 export default function Dashboard() {
   // Agora puxamos a lista real e reativa de treinos!
-  const { workouts } = useWorkoutStore();
+  const { workouts, fetchWorkouts, isLoading } = useWorkoutStore();
+
+  useEffect(() => {
+    fetchWorkouts();
+  }, [fetchWorkouts]);
 
   return (
     <main className="w-full px-4 md:px-8 py-4 md:py-8">
+      {isLoading && (
+        <p className="text-emerald-500 mb-4">Carregando treinos...</p>
+      )}
       <header className="mb-8 mt-4">
         <h1 className="text-3xl font-bold text-zinc-100 tracking-tight">
           Visão Geral
