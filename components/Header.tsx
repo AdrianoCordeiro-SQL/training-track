@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { HomeButton } from "./HomeButton";
 import { usePathname } from "next/navigation";
 
@@ -19,16 +18,6 @@ export function Header() {
             Training<span className="text-emerald-500">Track</span>
           </span>
         </div>
-
-        {/* Lado Direito: Ações */}
-        <nav>
-          <Link
-            href="/create-workout"
-            className="text-sm font-medium text-emerald-500 hover:text-emerald-400 transition-colors bg-emerald-500/10 px-4 py-2 rounded-lg"
-          >
-            + Novo Treino
-          </Link>
-        </nav>
       </div>
     </header>
   );
