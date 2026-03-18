@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-// Importe o componente
-import { RestTimer } from "@/components/RestTimer";
-import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
+import { Header } from "@/components/Header";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Training Track",
-  description: "Gere os seus treinos com eficiência.",
+  description: "Faça a gestão dos seus treinos de forma inteligente.",
 };
 
 export default function RootLayout({
@@ -19,15 +17,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt">
-      <body className={`${inter.className} bg-zinc-950 text-zinc-50`}>
+    <html lang="pt-BR">
+      <body
+        className={`${inter.className} bg-zinc-950 text-zinc-100 antialiased min-h-screen flex`}
+      >
         <Sidebar />
 
-        <div className="flex-1 pl-0 md:pl-16 w-full relative">
+        <main className="flex-1 min-h-screen pb-20 md:pb-0 md:pl-20 flex flex-col">
           <Header />
           {children}
-          <RestTimer />
-        </div>
+        </main>
       </body>
     </html>
   );

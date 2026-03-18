@@ -12,14 +12,13 @@ export function Sidebar() {
   const [userInitials, setUserInitials] = useState("U");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  // Busca os dados do Supabase ao montar a sidebar
   useEffect(() => {
     const getUser = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+
       if (user) {
-        // Pega os metadados que salvamos no cadastro
         const firstName = user.user_metadata?.first_name || "";
         const lastName = user.user_metadata?.last_name || "";
         const avatar = user.user_metadata?.avatar_url || null;
@@ -39,7 +38,6 @@ export function Sidebar() {
     getUser();
   }, [pathname]);
 
-  // Não renderiza na tela de login ou registro
   if (pathname === "/login" || pathname === "/register") return null;
 
   const handleLogout = async () => {
@@ -48,87 +46,106 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-screen bg-zinc-950/95 backdrop-blur-md border-r border-zinc-800 transition-all duration-300 w-16 hover:w-64 z-50 group flex flex-col overflow-hidden shadow-2xl">
-      {/* Topo: Foto do Usuário (Iniciais por enquanto) */}
-      <div className="p-4 flex items-center gap-4 border-b border-zinc-800/50 mt-2">
-        <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-sm font-bold text-zinc-950 shrink-0 shadow-inner overflow-hidden">
-          {avatarUrl ? (
-            // Se tiver foto, renderiza a imagem
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={avatarUrl}
-              alt="Avatar do Usuário"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            // Se não tiver, mostra as iniciais como fallback
-            userInitials
-          )}
+    <aside
+      className="fixed z-50 bg-zinc-950/95 backdrop-blur-md border-zinc-800 transition-all duration-300 shadow-2xl
+        bottom-0 left-0 right-0 h-16 border-t flex flex-row items-center justify-evenly
+        md:top-0 md:bottom-auto md:right-auto md:h-screen md:w-20 md:hover:w-64 md:flex-col md:border-r md:border-t-0 md:justify-between group overflow-hidden"
+    >
+      {/* Topo: Logo / Avatar */}
+      <div className="hidden md:flex h-20 w-full items-center border-b border-zinc-800/50 shrink-0">
+        {/* O container do avatar tem exatos 80px (w-20) para alinhar pelo centro no menu fechado */}
+        <div className="w-20 h-20 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-sm font-bold text-zinc-950 shadow-inner overflow-hidden border-2 border-zinc-800">
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={avatarUrl}
+                alt="Avatar"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              userInitials
+            )}
+          </div>
         </div>
-        <div className="flex flex-col whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <span className="text-sm font-semibold text-zinc-100 truncate w-40">
+        {/* flex-1 overflow-hidden impede que o texto distorça o layout */}
+        <div className="flex-1 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center">
+          <span className="text-sm font-bold text-zinc-100 whitespace-nowrap">
+            Training Track
+          </span>
+          <span className="text-xs font-medium text-emerald-500 whitespace-nowrap">
             {userName}
           </span>
         </div>
       </div>
 
       {/* Meio: Navegação */}
-      <nav className="flex-1 p-3 space-y-2 mt-2">
-        {/* Link Dashboard */}
+      {/* p-4 = 16px. O menu tem 80px. Logo, sobra exatos 48px para o botão (quadrado perfeito) */}
+      <nav className="flex flex-row md:flex-col flex-1 w-full items-center md:items-stretch justify-evenly md:justify-start md:p-4 md:space-y-2">
         <Link
           href="/"
-          className="flex items-center gap-4 p-2 rounded-xl hover:bg-zinc-800/80 text-zinc-400 hover:text-emerald-500 transition-colors group/link"
+          className={`flex items-center w-12 md:w-full h-12 rounded-xl transition-colors overflow-hidden ${
+            pathname === "/"
+              ? "text-emerald-500 bg-zinc-800/40"
+              : "text-zinc-400 hover:text-emerald-500 hover:bg-zinc-800/80"
+          }`}
         >
-          <svg
-            className="w-5 h-5 shrink-0"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-            />
-          </svg>
-          <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-medium">
-            Início
-          </span>
+          {/* O ícone fica blindado num quadrado de 48x48 (w-12 h-12) */}
+          <div className="w-12 h-12 flex items-center justify-center shrink-0">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+              />
+            </svg>
+          </div>
+          <div className="hidden md:block flex-1 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="whitespace-nowrap font-medium pl-2">Início</span>
+          </div>
         </Link>
 
-        {/* Link Perfil */}
         <Link
           href="/profile"
-          className="flex items-center gap-4 p-2 rounded-xl hover:bg-zinc-800/80 text-zinc-400 hover:text-emerald-500 transition-colors group/link"
+          className={`flex items-center w-12 md:w-full h-12 rounded-xl transition-colors overflow-hidden ${
+            pathname === "/profile"
+              ? "text-emerald-500 bg-zinc-800/40"
+              : "text-zinc-400 hover:text-emerald-500 hover:bg-zinc-800/80"
+          }`}
         >
-          <svg
-            className="w-5 h-5 shrink-0"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            />
-          </svg>
-          <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-medium">
-            Perfil
-          </span>
+          <div className="w-12 h-12 flex items-center justify-center shrink-0">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+          </div>
+          <div className="hidden md:block flex-1 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="whitespace-nowrap font-medium pl-2">Perfil</span>
+          </div>
         </Link>
-      </nav>
 
-      {/* Fundo: Logout */}
-      <div className="p-3 border-t border-zinc-800/50 mb-2">
+        {/* Botão Sair - Mobile */}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-4 p-2 rounded-xl hover:bg-red-500/10 text-zinc-400 hover:text-red-500 transition-colors"
+          className="md:hidden flex items-center justify-center w-12 h-12 rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-500/10 transition-colors"
         >
           <svg
-            className="w-5 h-5 shrink-0"
+            className="w-6 h-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -140,9 +157,33 @@ export function Sidebar() {
               d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
             />
           </svg>
-          <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-medium">
-            Sair
-          </span>
+        </button>
+      </nav>
+
+      {/* Fundo: Logout - Desktop */}
+      <div className="hidden md:block w-full shrink-0 border-t border-zinc-800/50 p-4">
+        <button
+          onClick={handleLogout}
+          className="flex items-center w-full h-12 rounded-xl text-zinc-400 hover:bg-red-500/10 hover:text-red-500 transition-colors overflow-hidden"
+        >
+          <div className="w-12 h-12 flex items-center justify-center shrink-0">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+          </div>
+          <div className="flex-1 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-left">
+            <span className="whitespace-nowrap font-medium pl-2">Sair</span>
+          </div>
         </button>
       </div>
     </aside>
