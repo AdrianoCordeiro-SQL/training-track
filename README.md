@@ -172,5 +172,5 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](./LICENSE) para 
 ---
 
 <div align="center">
-  Feito com 💪 por <a href="https://github.com/AdrianoCordeiro-SQL">seu-usuario</a>
+  Feito com 💪 por <a href="https://github.com/AdrianoCordeiro-SQL">AdrianoCordeiro-SQL</a>
 </div>
