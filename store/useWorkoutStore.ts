@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { supabase } from '@/utils/supabase';
+import { workoutService } from '@/store/workoutService';
 import { Workout } from '@/types';
 
 interface WorkoutState {
@@ -51,41 +51,27 @@ export const useWorkoutStore = create<WorkoutState>((set) => ({
 
   fetchWorkouts: async () => {
     set({ isLoading: true });
-    
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      set({ isLoading: false });
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from('workouts')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
+    try {
+      const workouts = await workoutService.fetchWorkouts();
+      set({ workouts });
+    } catch (error) {
       console.error('Erro ao buscar treinos:', error);
-    } else {
-      set({ workouts: data as Workout[] });
+    } finally {
+      set({ isLoading: false });
     }
-    
-    set({ isLoading: false });
   },
 
   addWorkout: async (workout) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
+    // 1. Atualizamos a UI imediatamente (Optimistic Update)
     set((state) => ({ workouts: [workout, ...state.workouts] }));
-
-    const { error } = await supabase.from('workouts').insert({
-      id: workout.id,
-      user_id: user.id,
-      title: workout.title,
-      exercises: workout.exercises,
-    });
-
-    if (error) console.error('Erro ao salvar no banco:', error);
+    
+    // 2. Depois tentamos salvar no banco
+    try {
+      await workoutService.addWorkout(workout);
+    } catch (error) {
+      console.error('Erro ao salvar no banco:', error);
+      // Opcional no futuro: Reverter o estado se a API falhar
+    }
   },
 
   updateWorkout: async (id, updatedWorkout) => {
@@ -93,13 +79,12 @@ export const useWorkoutStore = create<WorkoutState>((set) => ({
       workouts: state.workouts.map((w) => (w.id === id ? updatedWorkout : w)),
       activeWorkout: state.activeWorkout?.id === id ? updatedWorkout : state.activeWorkout
     }));
-
-    const { error } = await supabase.from('workouts').update({
-      title: updatedWorkout.title,
-      exercises: updatedWorkout.exercises
-    }).eq('id', id);
-
-    if (error) console.error('Erro ao atualizar no banco:', error);
+    
+    try {
+      await workoutService.updateWorkout(id, updatedWorkout);
+    } catch (error) {
+      console.error('Erro ao atualizar no banco:', error);
+    }
   },
 
   deleteWorkout: async (id) => {
@@ -107,9 +92,12 @@ export const useWorkoutStore = create<WorkoutState>((set) => ({
       workouts: state.workouts.filter((w) => w.id !== id),
       activeWorkout: state.activeWorkout?.id === id ? null : state.activeWorkout
     }));
-
-    const { error } = await supabase.from('workouts').delete().eq('id', id);
-    if (error) console.error('Erro ao deletar no banco:', error);
+    
+    try {
+      await workoutService.deleteWorkout(id);
+    } catch (error) {
+      console.error('Erro ao deletar no banco:', error);
+    }
   },
 
   setActiveWorkout: (workout) => set({ activeWorkout: workout }),
