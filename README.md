@@ -19,8 +19,11 @@
 
 ---
 
-<!-- PRINT AQUI: Adicione um screenshot ou GIF da tela principal da aplicação -->
-<!-- Exemplo: ![Preview do Training Track](./public/screenshot.png) -->
+<div align="center">
+  <img src="./public/preview1.jpeg" alt="Tela de Login" width="30%" />
+  <img src="./public/preview2.jpeg" alt="Painel Principal" width="30%" />
+  <img src="./public/preview3.jpeg" alt="Detalhes do Treino" width="30%" />
+</div>
 
 ---
 
