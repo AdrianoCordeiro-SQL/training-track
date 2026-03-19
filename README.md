@@ -53,15 +53,6 @@ O **Training Track** nasceu da necessidade de ter um controle simples e eficient
 
 ---
 
-🚀 Acesse a Aplicação
-Link: [Coloque o link do seu site aqui]
-
-Para testar a aplicação rapidamente com dados preenchidos, sinta-se à vontade para usar a conta de demonstração abaixo:
-
-E-mail: demonstration@treinoapp.com
-Senha: Demo@treino123
-
-(Ou, se preferir, você pode criar a sua própria conta do zero para testar o fluxo de autenticação e validações!)
 
 ## 🛠️ Tecnologias
 
@@ -135,8 +126,8 @@ Para explorar a aplicação com dados já preenchidos, use a conta de demonstra�
 
 | Campo  | Valor                |
 | ------ | -------------------- |
-| E-mail | `demo@treinoapp.com` |
-| Senha  | `demo1234`           |
+| E-mail | `demonstration@treinoapp.com` |
+| Senha  | `Demo@treino123`           |
 
 > ⚠️ Os dados desta conta são públicos e podem ser resetados periodicamente. Para testar o fluxo completo de cadastro e validações, recomendamos criar sua própria conta.
 
