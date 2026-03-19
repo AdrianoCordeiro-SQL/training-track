@@ -1,16 +1,19 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useForm, useFieldArray } from "react-hook-form";
-import { useWorkoutStore } from "@/store/useWorkoutStore";
+import {
+  useForm,
+  useFieldArray,
+  UseFormRegister,
+  FieldErrors,
+} from "react-hook-form";
 import { Workout } from "@/types";
 import { HomeButton } from "@/components/HomeButton";
 import { generateId } from "@/utils/generateId";
 import { ExerciseField } from "@/components/ExerciseField";
+import { useCreateWorkout } from "@/hooks/useCreateWorkout";
 
 export default function CreateWorkoutPage() {
-  const router = useRouter();
-  const { addWorkout } = useWorkoutStore();
+  const { saveWorkout } = useCreateWorkout();
 
   const {
     register,
@@ -36,46 +39,13 @@ export default function CreateWorkoutPage() {
     name: "exercises",
   });
 
-  const onSubmit = (data: Workout) => {
-    const newWorkout = { ...data, id: generateId() };
-    addWorkout(newWorkout);
-    router.push("/");
-  };
-
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-50 px-4 md:px-8 py-4 md:py-8 font-sans w-full">
-      <div className="mb-8 flex items-center gap-4">
-        <HomeButton />
-        <div>
-          <h1 className="text-3xl font-bold text-emerald-500 tracking-tight">
-            Criar Novo Treino
-          </h1>
-          <p className="text-zinc-400 mt-1">
-            Personalize os seus exercícios e cargas.
-          </p>
-        </div>
-      </div>
+      <PageHeader />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-24">
-        {/* Título do Treino */}
-        <div>
-          <label className="block text-sm font-medium text-zinc-400">
-            Título
-          </label>
-          <input
-            type="text"
-            placeholder="Ex: Treino C - Pernas"
-            {...register("title", { required: true })}
-            className="mt-1 bg-zinc-900/50 p-3 rounded-xl border border-zinc-800 w-full focus:outline-none focus:border-emerald-500"
-          />
-          {errors.title && (
-            <span className="text-red-500 text-xs mt-1">
-              Título é obrigatório
-            </span>
-          )}
-        </div>
+      <form onSubmit={handleSubmit(saveWorkout)} className="space-y-6 pb-24">
+        <TitleInput register={register} errors={errors} />
 
-        {/* Lista de Exercícios Componentizada */}
         {fields.map((field, index) => (
           <ExerciseField
             key={field.id}
@@ -110,5 +80,46 @@ export default function CreateWorkoutPage() {
         </button>
       </form>
     </main>
+  );
+}
+
+// --- SUBCOMPONENTES ---
+
+function PageHeader() {
+  return (
+    <div className="mb-8 flex items-center gap-4">
+      <HomeButton />
+      <div>
+        <h1 className="text-3xl font-bold text-emerald-500 tracking-tight">
+          Criar Novo Treino
+        </h1>
+        <p className="text-zinc-400 mt-1">
+          Personalize os seus exercícios e cargas.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function TitleInput({
+  register,
+  errors,
+}: {
+  register: UseFormRegister<Workout>;
+  errors: FieldErrors<Workout>;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-zinc-400">Título</label>
+      <input
+        type="text"
+        placeholder="Ex: Treino C - Pernas"
+        {...register("title", { required: true })}
+        className="mt-1 bg-zinc-900/50 p-3 rounded-xl border border-zinc-800 w-full focus:outline-none focus:border-emerald-500"
+      />
+      {errors.title && (
+        <span className="text-red-500 text-xs mt-1">Título é obrigatório</span>
+      )}
+    </div>
   );
 }
