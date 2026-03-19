@@ -3,7 +3,7 @@
   <p><strong>Seu parceiro digital para otimizar e registrar suas rotinas de musculação.</strong></p>
   <p>Crie treinos personalizados, acompanhe suas séries, controle o tempo de descanso e foque no que realmente importa: seu progresso.</p>
 
-  <a href="training-track-psi.vercel.app">
+  <a href="https://training-track-psi.vercel.app" target="_blank">
     <img src="https://img.shields.io/badge/acesse%20a%20aplica%C3%A7%C3%A3o-online-brightgreen?style=for-the-badge" alt="Acessar Aplicação" />
   </a>
 
