@@ -110,8 +110,14 @@ function TitleInput({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-zinc-400">Título</label>
+      <label
+        htmlFor="workout-title"
+        className="block text-sm font-medium text-zinc-400"
+      >
+        Título
+      </label>
       <input
+        id="workout-title" // <-- ADICIONADO AQUI
         type="text"
         placeholder="Ex: Treino C - Pernas"
         {...register("title", { required: true })}
