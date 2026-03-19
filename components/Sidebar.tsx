@@ -49,7 +49,7 @@ export function Sidebar() {
   return (
     <aside className="fixed z-50 bg-zinc-950/95 backdrop-blur-md border-zinc-800 transition-all duration-300 shadow-2xl bottom-0 left-0 right-0 h-16 border-t flex flex-row items-center justify-evenly md:top-0 md:bottom-auto md:right-auto md:h-screen md:w-20 md:hover:w-64 md:flex-col md:border-r md:border-t-0 md:justify-between group overflow-hidden">
       {/* Topo: Logo / Avatar */}
-      <div className="hidden md:flex h-20 w-full items-center border-b border-zinc-800/50 shrink-0">
+      <div className="hidden md:flex h-20 w-full items-center shrink-0">
         <div className="w-20 h-20 flex items-center justify-center shrink-0">
           <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-sm font-bold text-zinc-950 shadow-inner overflow-hidden border-2 border-zinc-800">
             {avatarUrl ? (
@@ -85,7 +85,6 @@ export function Sidebar() {
           }`}
         >
           <div className="w-12 h-12 flex items-center justify-center shrink-0">
-            {/* Ícone limpo aqui 👇 */}
             <Home className="w-6 h-6" />
           </div>
           <div className="hidden md:block flex-1 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -102,7 +101,6 @@ export function Sidebar() {
           }`}
         >
           <div className="w-12 h-12 flex items-center justify-center shrink-0">
-            {/* Ícone limpo aqui 👇 */}
             <User className="w-6 h-6" />
           </div>
           <div className="hidden md:block flex-1 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">

@@ -9,7 +9,6 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 w-full bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800">
-      {/* Removemos o max-w-5xl para que ocupe toda a largura e alinhe com o main */}
       <div className="flex items-center justify-between px-4 md:px-8 h-16 w-full">
         {/* Lado Esquerdo: Botão Home + Nome do App */}
         <div className="flex items-center gap-3">

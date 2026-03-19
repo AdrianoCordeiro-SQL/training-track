@@ -6,14 +6,11 @@ interface Props {
 }
 
 export function ExerciseCard({ exercise }: Props) {
-  // Puxamos as funções para atualizar a série e iniciar o timer
   const { updateSet, toggleRestTimer } = useWorkoutStore();
 
   const handleSetCompletion = (setId: string, isCompleted: boolean) => {
-    // 1. Atualiza o status da série no Zustand
     updateSet(exercise.id, setId, { completed: isCompleted });
 
-    // 2. Se a série foi marcada como concluída, dispara o cronômetro
     if (isCompleted) {
       toggleRestTimer(exercise.restTime);
     }

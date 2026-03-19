@@ -5,13 +5,8 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { useWorkoutStore } from "@/store/useWorkoutStore";
 import { Workout } from "@/types";
 import { HomeButton } from "@/components/HomeButton";
-
-// Função externa para gerar IDs. Ficar fora do componente resolve o erro do linter!
-const generateId = () => {
-  return typeof crypto !== "undefined" && crypto.randomUUID
-    ? crypto.randomUUID()
-    : Date.now().toString(36) + Math.random().toString(36).substring(2);
-};
+import { generateId } from "@/utils/generateId";
+import { ExerciseField } from "@/components/ExerciseField";
 
 export default function CreateWorkoutPage() {
   const router = useRouter();
@@ -27,7 +22,7 @@ export default function CreateWorkoutPage() {
       title: "",
       exercises: [
         {
-          id: generateId(), // Usando a nova função aqui
+          id: generateId(),
           name: "",
           restTime: 60,
           sets: [{ id: generateId(), reps: 0, weight: 0, completed: false }],
@@ -42,9 +37,7 @@ export default function CreateWorkoutPage() {
   });
 
   const onSubmit = (data: Workout) => {
-    // Usando a nova função aqui também
-    const newWorkout = { ...data, id: crypto.randomUUID() };
-
+    const newWorkout = { ...data, id: generateId() };
     addWorkout(newWorkout);
     router.push("/");
   };
@@ -82,83 +75,16 @@ export default function CreateWorkoutPage() {
           )}
         </div>
 
-        {/* Lista de Exercícios */}
+        {/* Lista de Exercícios Componentizada */}
         {fields.map((field, index) => (
-          <div
+          <ExerciseField
             key={field.id}
-            className="bg-zinc-900/50 p-5 rounded-2xl border border-zinc-800 space-y-4"
-          >
-            <div className="flex justify-between items-start">
-              <h2 className="text-xl font-semibold text-zinc-100">
-                Exercício #{index + 1}
-              </h2>
-              <button
-                type="button"
-                onClick={() => remove(index)}
-                className="text-red-500 text-xs hover:text-red-400 transition-colors"
-              >
-                Remover
-              </button>
-            </div>
-
-            {/* Nome do Exercício */}
-            <div>
-              <label className="block text-sm font-medium text-zinc-400">
-                Nome
-              </label>
-              <input
-                type="text"
-                placeholder="Ex: Agachamento Livre"
-                {...register(`exercises.${index}.name`, { required: true })}
-                className="mt-1 bg-zinc-800 p-3 rounded-lg w-full focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-
-            {/* Tempo de Descanso */}
-            <div>
-              <label className="block text-sm font-medium text-zinc-400">
-                Tempo de Descanso (segundos)
-              </label>
-              <input
-                type="number"
-                {...register(`exercises.${index}.restTime`, {
-                  required: true,
-                  min: 0,
-                })}
-                className="mt-1 bg-zinc-800 p-3 rounded-lg w-full focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-
-            {/* Configuração da Primeira Série */}
-            <div>
-              <label className="block text-sm font-medium text-zinc-400 mb-1">
-                Série 1 (Referência)
-              </label>
-              <div className="grid grid-cols-2 gap-3 text-sm font-medium text-zinc-500 text-center px-2">
-                <span>REPS</span>
-                <span>KG</span>
-              </div>
-              <div className="grid grid-cols-2 items-center text-center p-2 rounded-lg bg-zinc-800/50 gap-2">
-                <input
-                  type="number"
-                  {...register(`exercises.${index}.sets.0.reps`, {
-                    required: true,
-                  })}
-                  className="bg-transparent text-zinc-100 text-center w-full focus:outline-none focus:border-b border-emerald-500"
-                />
-                <input
-                  type="number"
-                  {...register(`exercises.${index}.sets.0.weight`, {
-                    required: true,
-                  })}
-                  className="bg-transparent text-zinc-100 text-center w-full focus:outline-none focus:border-b border-emerald-500"
-                />
-              </div>
-            </div>
-          </div>
+            index={index}
+            register={register}
+            onRemove={() => remove(index)}
+          />
         ))}
 
-        {/* Botão para adicionar exercício */}
         <button
           type="button"
           onClick={() =>
@@ -176,7 +102,6 @@ export default function CreateWorkoutPage() {
           + Adicionar Exercício
         </button>
 
-        {/* Botão para salvar o treino */}
         <button
           type="submit"
           className="fixed bottom-4 left-4 right-4 bg-emerald-600 hover:bg-emerald-500 transition-colors rounded-2xl p-4 text-zinc-950 font-bold z-50 shadow-lg shadow-emerald-900/50"
