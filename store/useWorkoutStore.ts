@@ -41,11 +41,13 @@ export const useWorkoutStore = create<WorkoutState>((set) => ({
   setRestTimeRemaining: (time) => set({ restTimeRemaining: time }),
 
   tickTimer: () => set((state) => {
-    if (state.restTimeRemaining > 0) {
-      return { restTimeRemaining: state.restTimeRemaining - 1 };
-    } else {
-      return { isResting: false, restTimeRemaining: 0 };
+    const nextTime = state.restTimeRemaining - 1;
+    
+    if (nextTime <= 0) {
+      return { restTimeRemaining: 0, isResting: false };
     }
+    
+    return { restTimeRemaining: nextTime };
   }),
 
 
