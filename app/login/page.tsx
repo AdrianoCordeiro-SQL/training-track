@@ -1,24 +1,16 @@
 "use client";
 
-import { useState } from "react"; // Importamos o useState para lidar com erros
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import Link from "next/link"; // Importamos o Link para o cadastro
-import { supabase } from "@/utils/supabase"; // Importamos o nosso cliente do Supabase
+import Link from "next/link";
+import { useLogin } from "@/hooks/useLogin";
 
-// 1. A interface já está certinha aqui fora
 interface LoginFormInputs {
   email?: string;
   password?: string;
 }
 
 export default function LoginPage() {
-  const router = useRouter();
-
-  // Estados para gerir o feedback para o usuário
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
+  const { login, isLoading, authError } = useLogin();
   const {
     register,
     handleSubmit,
@@ -26,37 +18,7 @@ export default function LoginPage() {
   } = useForm<LoginFormInputs>();
 
   const onSubmit = async (data: LoginFormInputs) => {
-    setIsLoading(true);
-    setAuthError(null); // Limpa erros anteriores
-
-    // 2. Chamamos o Supabase para fazer o login
-    const { data: authData, error } = await supabase.auth.signInWithPassword({
-      email: data.email!,
-      password: data.password!,
-    });
-
-    setIsLoading(false);
-
-    // 3. Tratamos possíveis erros (ex: e-mail inválido, senha incorreta)
-    if (error) {
-      // O Supabase retorna mensagens em inglês, mas nós podemos traduzir
-      // ou customizar baseado no erro. Por enquanto, vamos mostrar a do Supabase.
-      console.error("Erro de login:", error.message);
-
-      // Mapeamento simples para o usuário
-      if (error.message === "Invalid login credentials") {
-        setAuthError("E-mail ou senha incorretos.");
-      } else {
-        setAuthError(error.message);
-      }
-      return;
-    }
-
-    // 4. Se deu tudo certo, redirecionamos para o Dashboard!
-    if (authData.user) {
-      console.log("Login realizado com sucesso:", authData.user.email);
-      router.push("/");
-    }
+    await login(data.email, data.password);
   };
 
   return (
