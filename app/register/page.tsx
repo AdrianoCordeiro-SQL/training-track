@@ -1,61 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
-import { supabase } from "@/utils/supabase";
-
-// 1. Atualizamos a interface para receber os novos dados
-interface RegisterFormInputs {
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  address?: string;
-  email?: string;
-  password?: string;
-}
+import { UserPlus } from "lucide-react";
+import { useRegister, RegisterData } from "@/hooks/useRegister";
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
+  const { registerUser, isLoading, authError } = useRegister();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterFormInputs>();
+  } = useForm<RegisterData>();
 
-  const onSubmit = async (data: RegisterFormInputs) => {
-    setIsLoading(true);
-    setAuthError(null);
-
-    // 2. Enviamos os dados extras dentro de "options.data"
-    const { data: authData, error } = await supabase.auth.signUp({
-      email: data.email!,
-      password: data.password!,
-      options: {
-        data: {
-          first_name: data.firstName,
-          last_name: data.lastName,
-          phone: data.phone,
-          address: data.address,
-        },
-      },
-    });
-
-    setIsLoading(false);
-
-    if (error) {
-      setAuthError(error.message);
-      return;
-    }
-
-    if (authData.user) {
-      console.log("Usuário criado com sucesso:", authData.user);
-      router.push("/");
-    }
+  const onSubmit = async (data: RegisterData) => {
+    await registerUser(data);
   };
 
   return (
@@ -66,20 +25,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-md bg-zinc-900/50 p-8 rounded-3xl border border-zinc-800 shadow-2xl relative z-10 backdrop-blur-sm max-h-[95vh] overflow-y-auto custom-scrollbar">
         <div className="flex flex-col items-center justify-center mb-8">
           <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center border border-zinc-700 shadow-inner mb-4">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-8 h-8 text-emerald-500"
-            >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <line x1="19" y1="8" x2="19" y2="14" />
-              <line x1="22" y1="11" x2="16" y2="11" />
-            </svg>
+            <UserPlus className="w-8 h-8 text-emerald-500" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-zinc-100">
             Criar Conta
@@ -157,8 +103,7 @@ export default function RegisterPage() {
               </span>
             )}
           </div>
-          <div className="h-px bg-zinc-800/50 w-full my-2" />{" "}
-          {/* Separador visual sutil */}
+          <div className="h-px bg-zinc-800/50 w-full my-2" />
           <div>
             <label className="block text-sm font-medium text-zinc-400 mb-1.5">
               E-mail
@@ -202,7 +147,6 @@ export default function RegisterPage() {
               })}
               className="w-full bg-zinc-950/50 p-3.5 rounded-xl border border-zinc-800 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-zinc-100 placeholder:text-zinc-600"
             />
-            {/* Agora mostramos exatamente qual regra a senha quebrou */}
             {errors.password && (
               <span className="text-red-500 text-xs mt-1 block">
                 {errors.password.message}
