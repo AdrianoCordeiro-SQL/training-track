@@ -12,7 +12,8 @@ export function ExerciseCard({ exercise }: Props) {
     updateSet(exercise.id, setId, { completed: isCompleted });
 
     if (isCompleted) {
-      toggleRestTimer(exercise.restTime);
+      // Passamos o ID do exercício e da série para que o timer os conheça
+      toggleRestTimer(exercise.restTime, exercise.id, setId);
     }
   };
 

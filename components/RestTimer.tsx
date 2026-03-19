@@ -1,4 +1,6 @@
 "use client";
+
+import { useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { useWorkoutStore } from "@/store/useWorkoutStore";
 import { useTimer } from "@/hooks/useTimer";
@@ -7,9 +9,30 @@ export function RestTimer() {
   // Inicializamos o hook que criámos anteriormente para fazer a contagem decrescente
   useTimer();
 
-  const { isResting, restTimeRemaining, toggleRestTimer } = useWorkoutStore();
+  const {
+    isResting,
+    restTimeRemaining,
+    toggleRestTimer,
+    activeExerciseId,
+    activeSetId,
+    updateSet,
+  } = useWorkoutStore();
 
   const pathname = usePathname();
+
+  const handleCloseTimer = useCallback(() => {
+    toggleRestTimer(0); // Desativa o timer
+    if (activeExerciseId && activeSetId) {
+      updateSet(activeExerciseId, activeSetId, { completed: false }); // Desmarca o FEITO
+    }
+  }, [activeExerciseId, activeSetId, toggleRestTimer, updateSet]);
+
+  // Efeito que observa: se o tempo chegar a zero, fecha o timer e desmarca
+  useEffect(() => {
+    if (isResting && restTimeRemaining <= 0) {
+      handleCloseTimer();
+    }
+  }, [isResting, restTimeRemaining, handleCloseTimer]);
 
   if (pathname === "/login" || pathname === "/register") return null;
 
@@ -34,10 +57,10 @@ export function RestTimer() {
 
       {/* Botão para saltar o descanso */}
       <button
-        onClick={() => toggleRestTimer(0)} // Passar 0 desativa o estado 'isResting'
+        onClick={handleCloseTimer}
         className="bg-zinc-950/20 hover:bg-zinc-950/40 active:bg-zinc-950/60 px-5 py-3 rounded-xl font-semibold transition-all"
       >
-        Saltar
+        Pular
       </button>
     </div>
   );

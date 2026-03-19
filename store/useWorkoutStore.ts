@@ -14,9 +14,11 @@ interface WorkoutState {
   updateSet: (exerciseId: string, setId: string, updates: Partial<{ completed: boolean; weight: number | string; reps: number | string }>) => void;
   isResting: boolean;
   restTimeRemaining: number;
-  toggleRestTimer: (time?: number) => void;
   setRestTimeRemaining: (time: number) => void;
   tickTimer: () => void;
+  activeExerciseId: string | null;
+  activeSetId: string | null;
+  toggleRestTimer: (time: number, exerciseId?: string | null, setId?: string | null) => void;
 }
 
 export const useWorkoutStore = create<WorkoutState>((set) => ({
@@ -27,9 +29,13 @@ export const useWorkoutStore = create<WorkoutState>((set) => ({
   isResting: false,
   restTimeRemaining: 0,
 
-  toggleRestTimer: (time = 0) => set({
-    isResting: time > 0, 
+  activeExerciseId: null,
+  activeSetId: null,
+  toggleRestTimer: (time, exerciseId = null, setId = null) => set({
+    isResting: time > 0,
     restTimeRemaining: time,
+    activeExerciseId: exerciseId,
+    activeSetId: setId,
   }),
 
   setRestTimeRemaining: (time) => set({ restTimeRemaining: time }),
