@@ -1,50 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { supabase } from "@/utils/supabase";
-import { Home, User, LogOut } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Home, User, LogOut, LucideIcon } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+
+const NAV_ITEMS = [
+  { href: "/", label: "Início", icon: Home },
+  { href: "/profile", label: "Perfil", icon: User },
+];
+
+function NavItem({
+  href,
+  label,
+  icon: Icon,
+  currentPath,
+}: {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  currentPath: string;
+}) {
+  const isActive = currentPath === href;
+  return (
+    <Link
+      href={href}
+      className={`flex items-center w-12 md:w-full h-12 rounded-xl transition-colors overflow-hidden ${
+        isActive
+          ? "text-emerald-500 bg-zinc-800/40"
+          : "text-zinc-400 hover:text-emerald-500 hover:bg-zinc-800/80"
+      }`}
+    >
+      <div className="w-12 h-12 flex items-center justify-center shrink-0">
+        <Icon className="w-6 h-6" />
+      </div>
+      <div className="hidden md:block flex-1 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <span className="whitespace-nowrap font-medium pl-2">{label}</span>
+      </div>
+    </Link>
+  );
+}
 
 export function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-  const [userName, setUserName] = useState("Usuário");
-  const [userInitials, setUserInitials] = useState("U");
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        const firstName = user.user_metadata?.first_name || "";
-        const lastName = user.user_metadata?.last_name || "";
-        const avatar = user.user_metadata?.avatar_url || null;
-
-        if (firstName) {
-          setUserName(`${firstName} ${lastName}`);
-          setUserInitials(
-            firstName.charAt(0) + (lastName ? lastName.charAt(0) : ""),
-          );
-        } else if (user.email) {
-          setUserName(user.email.split("@")[0]);
-          setUserInitials(user.email.charAt(0).toUpperCase());
-        }
-        setAvatarUrl(avatar);
-      }
-    };
-    getUser();
-  }, [pathname]);
+  const { userName, userInitials, avatarUrl, logout } = useAuth();
 
   if (pathname === "/login" || pathname === "/register") return null;
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
 
   return (
     <aside className="fixed z-50 bg-zinc-950/95 backdrop-blur-md border-zinc-800 transition-all duration-300 shadow-2xl bottom-0 left-0 right-0 h-16 border-t flex flex-row items-center justify-evenly md:top-0 md:bottom-auto md:right-auto md:h-screen md:w-20 md:hover:w-64 md:flex-col md:border-r md:border-t-0 md:justify-between group overflow-hidden">
@@ -76,41 +77,13 @@ export function Sidebar() {
 
       {/* Meio: Navegação */}
       <nav className="flex flex-row md:flex-col flex-1 w-full items-center md:items-stretch justify-evenly md:justify-start md:p-4 md:space-y-2">
-        <Link
-          href="/"
-          className={`flex items-center w-12 md:w-full h-12 rounded-xl transition-colors overflow-hidden ${
-            pathname === "/"
-              ? "text-emerald-500 bg-zinc-800/40"
-              : "text-zinc-400 hover:text-emerald-500 hover:bg-zinc-800/80"
-          }`}
-        >
-          <div className="w-12 h-12 flex items-center justify-center shrink-0">
-            <Home className="w-6 h-6" />
-          </div>
-          <div className="hidden md:block flex-1 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <span className="whitespace-nowrap font-medium pl-2">Início</span>
-          </div>
-        </Link>
-
-        <Link
-          href="/profile"
-          className={`flex items-center w-12 md:w-full h-12 rounded-xl transition-colors overflow-hidden ${
-            pathname === "/profile"
-              ? "text-emerald-500 bg-zinc-800/40"
-              : "text-zinc-400 hover:text-emerald-500 hover:bg-zinc-800/80"
-          }`}
-        >
-          <div className="w-12 h-12 flex items-center justify-center shrink-0">
-            <User className="w-6 h-6" />
-          </div>
-          <div className="hidden md:block flex-1 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <span className="whitespace-nowrap font-medium pl-2">Perfil</span>
-          </div>
-        </Link>
+        {NAV_ITEMS.map((item) => (
+          <NavItem key={item.href} {...item} currentPath={pathname} />
+        ))}
 
         {/* Botão Sair - Mobile */}
         <button
-          onClick={handleLogout}
+          onClick={logout}
           className="md:hidden flex items-center justify-center w-12 h-12 rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-500/10 transition-colors"
         >
           <LogOut className="w-6 h-6" />
@@ -120,11 +93,10 @@ export function Sidebar() {
       {/* Fundo: Logout - Desktop */}
       <div className="hidden md:block w-full shrink-0 border-t border-zinc-800/50 p-4">
         <button
-          onClick={handleLogout}
+          onClick={logout}
           className="flex items-center w-full h-12 rounded-xl text-zinc-400 hover:bg-red-500/10 hover:text-red-500 transition-colors overflow-hidden"
         >
           <div className="w-12 h-12 flex items-center justify-center shrink-0">
-            {/* Ícone limpo aqui 👇 */}
             <LogOut className="w-6 h-6" />
           </div>
           <div className="flex-1 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-left">
