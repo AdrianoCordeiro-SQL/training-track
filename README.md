@@ -9,7 +9,7 @@
 
 <br/><br/>
 
-![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E?style=flat-square&logo=supabase)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38BDF8?style=flat-square&logo=tailwindcss)
@@ -54,7 +54,7 @@ O **Training Track** nasceu da necessidade de ter um controle simples e eficient
 ---
 
 🚀 Acesse a Aplicação
-Link: [Coloque o link do seu site aqui]
+Link: [https://training-track-psi.vercel.app](https://training-track-psi.vercel.app)
 
 Para testar a aplicação rapidamente com dados preenchidos, sinta-se à vontade para usar a conta de demonstração abaixo:
 
@@ -67,7 +67,7 @@ Senha: Demo@treino123
 
 | Tecnologia                                                                         | Função                                 | Versão |
 | ---------------------------------------------------------------------------------- | -------------------------------------- | ------ |
-| [Next.js](https://nextjs.org/)                                                     | Framework principal                    | 15     |
+| [Next.js](https://nextjs.org/)                                                     | Framework principal                    | 16     |
 | [TypeScript](https://www.typescriptlang.org/)                                      | Linguagem                              | 5      |
 | [React](https://react.dev/)                                                        | Biblioteca UI                          | 19     |
 | [Supabase](https://supabase.com/)                                                  | Backend, banco de dados e autenticação | -      |
@@ -76,6 +76,7 @@ Senha: Demo@treino123
 | [Tailwind CSS](https://tailwindcss.com/)                                           | Estilização                            | 4      |
 | [Lucide React](https://lucide.dev/)                                                | Ícones                                 | -      |
 | [Jest](https://jestjs.io/) + [React Testing Library](https://testing-library.com/) | Testes                                 | -      |
+| [Playwright](https://playwright.dev/)                                              | Testes E2E                             | -      |
 
 ---
 
@@ -135,8 +136,8 @@ Para explorar a aplicação com dados já preenchidos, use a conta de demonstra�
 
 | Campo  | Valor                |
 | ------ | -------------------- |
-| E-mail | `demo@treinoapp.com` |
-| Senha  | `demo1234`           |
+| E-mail | `demonstration@treinoapp.com` |
+| Senha  | `Demo@treino123`             |
 
 > ⚠️ Os dados desta conta são públicos e podem ser resetados periodicamente. Para testar o fluxo completo de cadastro e validações, recomendamos criar sua própria conta.
 
@@ -151,7 +152,9 @@ training-track/
 ├── store/                # Estado global com Zustand
 ├── lib/                  # Configurações e utilitários (ex: cliente Supabase)
 ├── supabase/             # Migrations e configurações do banco
-└── __tests__/            # Testes unitários e de integração
+├── hooks/                # Hooks da aplicação e testes unitários (*.test.ts)
+├── e2e/                  # Testes End-to-End com Playwright
+└── .github/workflows/    # Workflows CI (inclui E2E Playwright)
 ```
 
 ---
@@ -163,7 +166,7 @@ training-track/
 - Instalar dependências do projeto (`npm install`)
 - Configurar variáveis de ambiente da aplicação (`.env.local`)
 - Criar um arquivo `.env.e2e` com base em `.env.e2e.example`
-- Preencher `E2E_USER_EMAIL` e `E2E_USER_PASSWORD` com uma conta dedicada de teste
+- Preencher `E2E_USER_EMAIL` e `E2E_USER_PASSWORD` com uma conta dedicada de teste (recomendado)
 
 ### Instalação do Playwright
 
@@ -189,6 +192,17 @@ npm run test:e2e:report  # Abre o relatório HTML da última execução
 - Validação de campos obrigatórios no login
 - Login com conta de teste (quando `E2E_USER_EMAIL`/`E2E_USER_PASSWORD` estiverem definidos)
 - Criação de treino e validação na dashboard com título único por execução
+
+### CI (GitHub Actions)
+
+O workflow `E2E Playwright` exige os seguintes repository secrets em `Settings > Secrets and variables > Actions`:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `E2E_USER_EMAIL`
+- `E2E_USER_PASSWORD`
+
+Sem esses secrets, o job falha na etapa de validação antes da execução dos testes.
 
 ### Depuração e troubleshooting
 
