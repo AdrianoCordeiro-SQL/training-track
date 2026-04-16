@@ -10,11 +10,11 @@ test("creates a workout and shows it on dashboard", async ({ page }, testInfo) =
   await page.goto("/create-workout");
 
   await page.getByLabel("Título").fill(workoutTitle);
-  await page.getByLabel("Nome").fill("Agachamento Livre");
-  await page.getByLabel("Descanso (segundos)").fill("90");
+  await page.getByPlaceholder("Ex: Agachamento Livre").fill("Agachamento Livre");
 
-  // First pair belongs to "Série 1 (Referência)" for the first exercise.
+  // Order: restTime, reps, weight for the first exercise card.
   const numericInputs = page.locator('input[type="number"]');
+  await numericInputs.nth(0).fill("90");
   await numericInputs.nth(1).fill("10");
   await numericInputs.nth(2).fill("80");
 

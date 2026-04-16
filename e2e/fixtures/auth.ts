@@ -22,8 +22,8 @@ export async function loginWithTestUser(page: Page): Promise<void> {
   const password = getRequiredEnv("E2E_USER_PASSWORD");
 
   await page.goto("/login");
-  await page.getByLabel("E-mail").fill(email);
-  await page.getByLabel("Senha").fill(password);
+  await page.getByPlaceholder("seu@email.com").fill(email);
+  await page.getByPlaceholder("••••••••").fill(password);
   await page.getByRole("button", { name: "Entrar" }).click();
   await expect(page).toHaveURL("/");
 }
