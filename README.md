@@ -134,10 +134,10 @@ Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 
 Para explorar a aplicação com dados já preenchidos, use a conta de demonstração:
 
-| Campo  | Valor                |
-| ------ | -------------------- |
+| Campo  | Valor                         |
+| ------ | ----------------------------- |
 | E-mail | `demonstration@treinoapp.com` |
-| Senha  | `Demo@treino123`             |
+| Senha  | `Demo@treino123`              |
 
 > ⚠️ Os dados desta conta são públicos e podem ser resetados periodicamente. Para testar o fluxo completo de cadastro e validações, recomendamos criar sua própria conta.
 

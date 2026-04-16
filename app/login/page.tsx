@@ -58,10 +58,14 @@ export default function LoginPage() {
         {/* Formulário */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-zinc-400 mb-1.5">
+            <label
+              htmlFor="login-email"
+              className="block text-sm font-medium text-zinc-400 mb-1.5"
+            >
               E-mail
             </label>
             <input
+              id="login-email"
               type="email"
               placeholder="seu@email.com"
               {...register("email", { required: true })}
@@ -76,7 +80,10 @@ export default function LoginPage() {
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-sm font-medium text-zinc-400">
+              <label
+                htmlFor="login-password"
+                className="block text-sm font-medium text-zinc-400"
+              >
                 Senha
               </label>
               <a
@@ -87,6 +94,7 @@ export default function LoginPage() {
               </a>
             </div>
             <input
+              id="login-password"
               type="password"
               placeholder="••••••••"
               {...register("password", { required: true })}
