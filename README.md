@@ -147,6 +147,49 @@ training-track/
 
 ---
 
+## Testes E2E com Playwright
+
+### Pré-requisitos
+
+- Instalar dependências do projeto (`npm install`)
+- Configurar variáveis de ambiente da aplicação (`.env.local`)
+- Criar um arquivo `.env.e2e` com base em `.env.e2e.example`
+- Preencher `E2E_USER_EMAIL` e `E2E_USER_PASSWORD` com uma conta dedicada de teste
+
+### Instalação do Playwright
+
+```bash
+npm i -D @playwright/test
+npx playwright install
+```
+
+### Scripts disponíveis
+
+```bash
+npm run test:e2e         # Executa toda a suíte em headless
+npm run test:e2e:ui      # Abre UI mode interativo do Playwright
+npm run test:e2e:headed  # Executa com navegador visível
+npm run test:e2e:report  # Abre o relatório HTML da última execução
+```
+
+`npm run test:e2e` agora carrega automaticamente as variáveis de `.env.e2e` via `dotenv` no `playwright.config.ts`.
+
+### Cenários smoke implementados
+
+- Redirecionamento de usuário não autenticado para `/login`
+- Validação de campos obrigatórios no login
+- Login com conta de teste (quando `E2E_USER_EMAIL`/`E2E_USER_PASSWORD` estiverem definidos)
+- Criação de treino e validação na dashboard com título único por execução
+
+### Depuração e troubleshooting
+
+- Rode `npm run test:e2e:ui` para inspecionar passos e seletores.
+- Em falhas, abra o relatório com `npm run test:e2e:report`.
+- Prioridade de variáveis: ambiente do processo/CI > `.env.e2e` local.
+- Os testes autenticados são automaticamente ignorados quando variáveis de auth E2E não estiverem configuradas.
+
+---
+
 ## 🤝 Contribuindo
 
 Contribuições são bem-vindas! Sinta-se à vontade para abrir uma _issue_ reportando bugs ou sugerindo melhorias, ou enviar um _pull request_ diretamente.
