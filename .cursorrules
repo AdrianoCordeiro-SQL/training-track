@@ -1,0 +1,51 @@
+# Regras Gerais do Projeto
+
+## Padrões de Código
+- Siga os padrões de nomenclatura consistentes (camelCase, snake_case, PascalCase conforme a convenção da linguagem)
+- Mantenha funções pequenas e focadas em uma única responsabilidade
+- Evite duplicação de código - aplique DRY (Don't Repeat Yourself)
+- Use nomes descritivos para variáveis, funções e classes
+- Limite linhas de código a 80-120 caracteres para melhor legibilidade
+
+## Organização de Arquivos
+- Mantenha uma estrutura de pastas clara e lógica
+- Separe código de negócio de código de infraestrutura
+- Agrupe arquivos relacionados próximos uns dos outros
+- Use convenções de nomenclatura de arquivos consistentes
+
+## Boas Práticas
+- Escreva código pensando em manutenibilidade futura
+- Adicione comentários apenas quando necessário para explicar "por quê", não "o quê"
+- Valide entradas de usuário e dados externos
+- Trate erros de forma apropriada - nunca silencie exceções
+- Evite código "mágico" - prefira clareza sobre "cleverness"
+
+## Segurança
+- NUNCA commite credenciais, API keys ou senhas no código
+- Use variáveis de ambiente para informações sensíveis
+- Valide e sanitize todas as entradas de usuário
+- Implemente autenticação e autorização adequadas
+- Mantenha dependências atualizadas para evitar vulnerabilidades conhecidas
+
+## Testes
+- Escreva testes para funcionalidades críticas
+- Mantenha testes simples e legíveis
+- Use nomes descritivos para casos de teste
+- Teste casos de sucesso e casos de erro
+
+## Documentação
+- Mantenha um README.md atualizado com instruções de setup
+- Documente APIs e interfaces públicas
+- Adicione exemplos de uso quando apropriado
+- Mantenha changelog para mudanças significativas
+
+## Performance
+- Otimize apenas quando necessário (após medir)
+- Evite loops desnecessários e processamento redundante
+- Considere complexidade algorítmica em operações críticas
+- Use cache apropriadamente
+
+## Acessibilidade
+- Garanta que interfaces sejam acessíveis (ARIA, semântica HTML)
+- Suporte navegação por teclado
+- Forneça textos alternativos para conteúdo visual
